@@ -1,0 +1,15 @@
+#include <oled.h>
+
+void setup() {
+  Wire.begin();
+oled_initialize();
+clear();
+
+}
+
+void loop() {
+  while (true) {
+    send_string(0x00,0x00,String("Hello Roboengineer!!"));
+  }
+  
+}
