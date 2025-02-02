@@ -1,0 +1,41 @@
+#include <Servo.h>
+
+Servo fingers[5]; // Array for five servos
+const int switchPins[6] = {2, 3, 4, 5, 6, 7}; // Pins for tactile switches
+bool fingerState[5] = {false, false, false, false, false}; // Toggle state for fingers
+bool allState = false; // State for the 6th switch
+
+void setup() {
+    Serial.begin(9600); // Initialize serial communication
+    for (int i = 0; i < 5; i++) {
+        fingers[i].attach(8 + i); // Attach servos to pins 8,9,10,11,12
+        pinMode(switchPins[i], INPUT_PULLUP); // Set switch pins as input with pull-up
+    }
+    pinMode(switchPins[5], INPUT_PULLUP); // 6th switch
+}
+
+void loop() {
+    for (int i = 0; i < 5; i++) {
+        if (digitalRead(switchPins[i]) == LOW) {
+            delay(200); // Debounce delay
+            while (digitalRead(switchPins[i]) == LOW); // Wait for release
+            fingerState[i] = !fingerState[i]; // Toggle state
+            fingers[i].write(fingerState[i] ? 90 : 0); // Move servo (90 = open, 0 = closed)
+            Serial.print("Finger ");
+            Serial.print(i + 1);
+            Serial.println(fingerState[i] ? " opened" : " closed");
+        }
+    }
+
+    // Control all fingers together
+    if (digitalRead(switchPins[5]) == LOW) {
+        delay(200); // Debounce delay
+        while (digitalRead(switchPins[5]) == LOW); // Wait for release
+        allState = !allState;
+        for (int i = 0; i < 5; i++) {
+            fingerState[i] = allState;
+            fingers[i].write(allState ? 90 : 0);
+        }
+        Serial.println(allState ? "All fingers opened" : "All fingers closed");
+    }
+}
