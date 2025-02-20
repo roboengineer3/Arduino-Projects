@@ -1,0 +1,70 @@
+#include <LiquidCrystal.h>
+
+// LCD pin connections
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+// Buzzer pin
+const int buzzer = 8;
+
+// Time limits
+const int reminderTime = 1500; // 25 minutes (1500 seconds)
+const int finalTime = 1800;    // 30 minutes (1800 seconds)
+
+void setup() {
+  lcd.begin(16, 2);
+  pinMode(buzzer, OUTPUT);
+
+  lcd.print("Stopwatch: 00:00");
+}
+
+void loop() {
+  for (int seconds = 0; seconds <= finalTime; seconds++) {
+    // Calculate minutes and seconds
+    int minutes = seconds / 60;
+    int remainingSeconds = seconds % 60;
+
+    // Display time in MM:SS format
+    lcd.setCursor(0, 1);
+    lcd.print("Time: ");
+    if (minutes < 10) lcd.print("0"); // Leading zero
+    lcd.print(minutes);
+    lcd.print(":");
+    if (remainingSeconds < 10) lcd.print("0"); // Leading zero
+    lcd.print(remainingSeconds);
+
+    // Reminder at 25 minutes
+    if (seconds == reminderTime) {
+      lcd.setCursor(0, 1);
+      lcd.print("25 min! Reminder");
+      beepBuzzer(2); // Beep twice
+    }
+
+    // Wait for 1 second
+    delay(1000);
+  }
+
+  // Time's up! Final buzzer alert
+  lcd.setCursor(0, 1);
+  lcd.print("Time Over!      ");
+  digitalWrite(buzzer, HIGH);
+  delay(5000);  // Buzzer ON for 5 sec
+  digitalWrite(buzzer, LOW);
+
+  // Reset stopwatch (optional: restart loop)
+  lcd.clear();
+  lcd.print("Resetting...");
+  delay(2000);
+  lcd.clear();
+  lcd.print("Stopwatch: 00:00");
+}
+
+// Function to beep the buzzer multiple times
+void beepBuzzer(int times) {
+  for (int i = 0; i < times; i++) {
+    digitalWrite(buzzer, HIGH);
+    delay(500);
+    digitalWrite(buzzer, LOW);
+    delay(500);
+  }
+}
