@@ -1,0 +1,23 @@
+#define LDR_PIN 2   // LDR module output connected to D2
+#define RELAY_PIN 8 // Relay signal pin connected to D8
+
+void setup() {
+    Serial.begin(9600);  // Initialize Serial Monitor
+    pinMode(LDR_PIN, INPUT);  // Set LDR as input
+    pinMode(RELAY_PIN, OUTPUT); // Set relay as output
+    digitalWrite(RELAY_PIN, HIGH); // Keep relay off initially
+}
+
+void loop() {
+    int ldrState = digitalRead(LDR_PIN); // Read LDR output
+
+    if (ldrState == HIGH) {  // If it's dark
+        digitalWrite(RELAY_PIN, 0);  // Turn ON the relay (AC bulb ON)
+        Serial.println("Dark detected - AC Bulb ON");
+    } else {  // If it's bright
+        digitalWrite(RELAY_PIN, 1);   // Turn OFF the relay (AC bulb OFF)
+        Serial.println("Light detected - AC Bulb OFF");
+    }
+
+    delay(500);  // Small delay for stability
+}
