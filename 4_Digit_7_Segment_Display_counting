@@ -1,0 +1,36 @@
+#include <TM1637Display.h>
+
+//Install "TM1637Display" by Avishay Orpaz
+// Define TM1637 display pins
+
+/* Your 4-digit TM1637 7-segment display will show a counting sequence from 0000 to 9999.
+
+How It Works
+The loop() starts counting from 0000.
+Every 500 milliseconds, the number increases by 1.
+The display updates continuously until it reaches 9999, then it stops.
+*/
+
+#define CLK 6  // Clock pin
+#define DIO 7  // Data pin
+
+/*
+CLK (Clock)	D6
+DIO (Data)	D7
+VCC	5V
+GND	GND
+*/
+
+// Initialize TM1637 display
+TM1637Display display(CLK, DIO);
+
+void setup() {
+    display.setBrightness(7); // Set brightness (0-7)
+}
+
+void loop() {
+    for (int num = 0; num <= 9999; num++) {
+        display.showNumberDec(num, false); // Display number without leading zeros
+        delay(1000); // Wait 500ms before updating
+    }
+}
