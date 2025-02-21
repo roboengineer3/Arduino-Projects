@@ -1,0 +1,75 @@
+#include <TM1637Display.h>
+
+#define CLK 6  
+#define DIO 7  
+
+#define START_BUTTON 2
+#define STOP_BUTTON 3
+#define RESET_BUTTON 4
+#define BUZZER 5  // Buzzer pin
+
+TM1637Display display(CLK, DIO);
+
+bool running = false;
+unsigned long startTime = 0;  
+unsigned long elapsedTime = 0;  
+int beepCount = 0;  // Track 100-sec intervals
+
+void setup() {
+    pinMode(START_BUTTON, INPUT_PULLUP);
+    pinMode(STOP_BUTTON, INPUT_PULLUP);
+    pinMode(RESET_BUTTON, INPUT_PULLUP);
+    pinMode(BUZZER, OUTPUT);
+    
+    display.setBrightness(7);
+    display.showNumberDec(0, false);
+}
+
+void loop() {
+    if (digitalRead(START_BUTTON) == LOW) {
+        running = true;
+        startTime = millis() - elapsedTime;
+        delay(200); 
+    }
+
+    if (digitalRead(STOP_BUTTON) == LOW) {
+        running = false;
+        elapsedTime = millis() - startTime;
+        delay(200); 
+    }
+
+    if (digitalRead(RESET_BUTTON) == LOW) {
+        running = false;
+        elapsedTime = 0;
+        beepCount = 0;  // Reset beep tracking
+        display.showNumberDec(0, false);
+        delay(200); 
+    }
+
+    if (running) {
+        unsigned long currentTime = millis() - startTime;
+        int minutes = (currentTime / 60000) % 100;  
+        int seconds = (currentTime / 1000) % 60;  
+
+        int displayTime = (minutes * 100) + seconds;
+        display.showNumberDecEx(displayTime, 0b01000000, true); // Show MM:SS format
+
+        // Check for 100-second intervals
+        int newBeepCount = currentTime / 100000;  // (100,000 ms = 100 sec)
+        
+        if (newBeepCount > beepCount) {
+            beepCount = newBeepCount;  
+            beepBuzzer(beepCount);  // Call function to beep accordingly
+        }
+    }
+}
+
+// Function to beep the buzzer
+void beepBuzzer(int times) {
+    for (int i = 0; i < times; i++) {
+        digitalWrite(BUZZER, HIGH);
+        delay(300);
+        digitalWrite(BUZZER, LOW);
+        delay(300);
+    }
+}
