@@ -1,0 +1,56 @@
+#include <TM1637Display.h>
+
+// Define TM1637 display pins
+#define CLK 6  
+#define DIO 7  
+
+// Define button pins
+#define START_BUTTON 2
+#define STOP_BUTTON 3
+#define RESET_BUTTON 4
+
+// Initialize TM1637 display
+TM1637Display display(CLK, DIO);
+
+bool running = false;  // Stopwatch state
+unsigned long startTime = 0;  
+unsigned long elapsedTime = 0;  
+
+void setup() {
+    pinMode(START_BUTTON, INPUT_PULLUP);
+    pinMode(STOP_BUTTON, INPUT_PULLUP);
+    pinMode(RESET_BUTTON, INPUT_PULLUP);
+    
+    display.setBrightness(7); // Set brightness (0-7)
+    display.showNumberDec(0, false); // Display 0000 initially
+}
+
+void loop() {
+    if (digitalRead(START_BUTTON) == LOW) {
+        running = true;
+        startTime = millis() - elapsedTime; // Continue from stopped time
+        delay(200); // Debounce delay
+    }
+
+    if (digitalRead(STOP_BUTTON) == LOW) {
+        running = false;
+        elapsedTime = millis() - startTime; // Store stopped time
+        delay(200); // Debounce delay
+    }
+
+    if (digitalRead(RESET_BUTTON) == LOW) {
+        running = false;
+        elapsedTime = 0;
+        display.showNumberDec(0, false);
+        delay(200); // Debounce delay
+    }
+
+    if (running) {
+        unsigned long currentTime = millis() - startTime;
+        int seconds = (currentTime / 1000) % 100; // Get seconds (max 99)
+        int milliseconds = (currentTime / 10) % 100; // Get milliseconds
+
+        int displayTime = (seconds * 100) + milliseconds;
+        display.showNumberDecEx(displayTime, 0b01000000, true); // Show with colon
+    }
+}
