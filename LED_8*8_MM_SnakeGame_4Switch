@@ -1,0 +1,98 @@
+#include "LedControl.h"
+
+#define DIN 7
+#define CS 6
+#define CLK 5
+
+#define UP_BTN 2
+#define DOWN_BTN 3
+#define LEFT_BTN 4
+#define RIGHT_BTN 8
+
+LedControl matrix = LedControl(DIN, CLK, CS, 1);
+
+const int SIZE = 8;
+int snakeX[64], snakeY[64];
+int snakeLength = 3;
+int foodX, foodY;
+int dirX = 1, dirY = 0;  // Initial direction (moving right)
+bool gameOver = false;
+
+void setup() {
+  matrix.shutdown(0, false);
+  matrix.setIntensity(0, 8);
+  matrix.clearDisplay(0);
+  
+  pinMode(UP_BTN, INPUT_PULLUP);
+  pinMode(DOWN_BTN, INPUT_PULLUP);
+  pinMode(LEFT_BTN, INPUT_PULLUP);
+  pinMode(RIGHT_BTN, INPUT_PULLUP);
+  
+  // Initialize snake position
+  for (int i = 0; i < snakeLength; i++) {
+    snakeX[i] = 4 - i;
+    snakeY[i] = 4;
+  }
+  
+  spawnFood();
+}
+
+void loop() {
+  if (digitalRead(UP_BTN) == LOW && dirY == 0) { dirX = 0; dirY = -1; }
+  if (digitalRead(DOWN_BTN) == LOW && dirY == 0) { dirX = 0; dirY = 1; }
+  if (digitalRead(LEFT_BTN) == LOW && dirX == 0) { dirX = -1; dirY = 0; }
+  if (digitalRead(RIGHT_BTN) == LOW && dirX == 0) { dirX = 1; dirY = 0; }
+
+  if (!gameOver) {
+    moveSnake();
+    drawGame();
+    delay(300);
+  }
+}
+
+void moveSnake() {
+  int newX = snakeX[0] + dirX;
+  int newY = snakeY[0] + dirY;
+
+  if (newX < 0 || newX >= SIZE || newY < 0 || newY >= SIZE || checkCollision(newX, newY)) {
+    gameOver = true;
+    return;
+  }
+
+  if (newX == foodX && newY == foodY) {
+    snakeLength++;
+    spawnFood();
+  } else {
+    for (int i = snakeLength - 1; i > 0; i--) {
+      snakeX[i] = snakeX[i - 1];
+      snakeY[i] = snakeY[i - 1];
+    }
+  }
+
+  snakeX[0] = newX;
+  snakeY[0] = newY;
+}
+
+bool checkCollision(int x, int y) {
+  for (int i = 1; i < snakeLength; i++) {
+    if (snakeX[i] == x && snakeY[i] == y) return true;
+  }
+  return false;
+}
+
+void spawnFood() {
+  do {
+    foodX = random(0, SIZE);
+    foodY = random(0, SIZE);
+  } while (checkCollision(foodX, foodY));
+}
+
+void drawGame() {
+  matrix.clearDisplay(0);
+  
+  for (int i = 0; i < snakeLength; i++) {
+    matrix.setLed(0, snakeY[i], snakeX[i], true);
+  }
+  
+  matrix.setLed(0, foodY, foodX, true);
+}
