@@ -1,0 +1,98 @@
+#include "LedControl.h"  // Install this library
+
+int DIN = 7;
+int CS =  6;
+int CLK = 5;
+
+LedControl matrix = LedControl(DIN, CLK, CS, 1);
+
+// Shape Heart
+byte heart[8] = {
+  0b00000000,  
+  0b01100110,  
+  0b11111111,  
+  0b11111111,  
+  0b01111110,  
+  0b00111100,  
+  0b00011000,  
+  0b00000000
+};
+
+// Letter A
+byte A[8] = {
+  0b00111100,
+  0b01100110,
+  0b11000011,
+  0b11000011,
+  0b11111111,
+  0b11000011,
+  0b11000011,
+  0b11000011
+};
+
+// Letter M
+byte M[8] = {
+  0b11000011,
+  0b11100111,
+  0b11111111,
+  0b11011011,
+  0b11000011,
+  0b11000011,
+  0b11000011,
+  0b11000011
+};
+
+// Letter I
+byte I[8] = {
+  0b01111110,
+  0b00011000,
+  0b00011000,
+  0b00011000,
+  0b00011000,
+  0b00011000,
+  0b00011000,
+  0b01111110
+};
+
+// Letter R
+byte R[8] = {
+  0b11111100,
+  0b11000110,
+  0b11000110,
+  0b11111100,
+  0b11011000,
+  0b11001100,
+  0b11000110,
+  0b11000011
+};
+
+void setup() {
+  matrix.shutdown(0, LOW);
+  matrix.setIntensity(0, 8);    // Set brightness (0-15)
+  matrix.clearDisplay(0);       // Clear the display
+}
+
+void loop() {
+
+  displayLetter(heart);  // Show "heart shape"
+  delay(2000);       // Wait for 2 seconds
+
+  displayLetter(A);  // Show "A"
+  delay(2000);       // Wait for 2 seconds
+
+  displayLetter(M);  // Show "M"
+  delay(2000);       
+
+  displayLetter(I);  // Show "I"
+  delay(2000);       
+
+  displayLetter(R);  // Show "R"
+  delay(2000);       
+}
+
+// Function to display a letter on the LED matrix
+void displayLetter(byte letter[8]) {
+  for (int i = 0; i < 8; i++) {
+    matrix.setRow(0, i, letter[i]);
+  }
+}
