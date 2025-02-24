@@ -1,0 +1,52 @@
+#include <DHT11.h>
+#include <LiquidCrystal.h>
+
+// Define DHT11 sensor pin (changed to 6)
+DHT11 dht11(6);  // DHT11 data pin connected to digital pin 6
+
+// Define LCD pin connections
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+void setup() {
+    Serial.begin(9600);   // Start serial monitor for debugging
+    lcd.begin(16, 2);     // Initialize 16×2 LCD
+    lcd.print("DHT11 Sensor");  
+    delay(2000);          // Display initial message for 2 seconds
+    lcd.clear();
+}
+
+void loop() {
+    int temperature = 0;
+    int humidity = 0;
+
+    // Read temperature and humidity
+    int result = dht11.readTemperatureHumidity(temperature, humidity);
+
+    if (result == 0) {
+        // Print on Serial Monitor
+        Serial.print("Temperature: ");
+        Serial.print(temperature);
+        Serial.print(" °C\tHumidity: ");
+        Serial.print(humidity);
+        Serial.println(" %");
+
+        // Display on LCD
+        lcd.setCursor(0, 0);
+        lcd.print("Temp: ");
+        lcd.print(temperature);
+        lcd.print(" C  ");  // Extra spaces to clear previous characters
+
+        lcd.setCursor(0, 1);
+        lcd.print("Humidity: ");
+        lcd.print(humidity);
+        lcd.print(" %  ");
+    } else {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("DHT11 Error!");
+        Serial.println(DHT11::getErrorString(result));
+    }
+
+    delay(2000);  // Update readings every 2 seconds
+}
