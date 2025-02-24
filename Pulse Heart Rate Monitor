@@ -14,7 +14,7 @@ void setup() {
 
     // Display startup message
     lcd.setCursor(0, 0);
-    lcd.print("Welcome RMVM");
+    lcd.print("Welcome RoboEr");
     delay(2000);
     lcd.clear();
     lcd.setCursor(0, 0);
