@@ -1,0 +1,17 @@
+#define REED_SWITCH 2  // Reed switch connected to pin 2
+#define LED 9          // LED connected to pin 9
+
+void setup() {
+    pinMode(REED_SWITCH, INPUT_PULLUP); // Set reed switch as input with pull-up
+    pinMode(LED, OUTPUT);               // Set LED as output
+}
+
+void loop() {
+    int switchState = digitalRead(REED_SWITCH); // Read reed switch state
+
+    if (switchState == LOW) { // If magnet is near, switch is closed
+        digitalWrite(LED, HIGH); // Turn LED ON
+    } else {
+        digitalWrite(LED, LOW);  // Turn LED OFF
+    }
+}
