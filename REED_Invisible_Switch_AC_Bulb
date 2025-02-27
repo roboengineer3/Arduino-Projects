@@ -1,0 +1,24 @@
+#define REED_SWITCH 2  // Reed switch connected to pin 2
+#define RELAY 9        // Relay connected to pin 9
+
+bool bulbState = false; // Variable to store bulb state
+bool lastState = HIGH;  // Store last reed switch state
+
+void setup() {
+    pinMode(REED_SWITCH, INPUT_PULLUP); // Set reed switch as input with pull-up
+    pinMode(RELAY, OUTPUT);             // Set relay as output
+    digitalWrite(RELAY, HIGH);           // Ensure relay starts OFF
+}
+
+void loop() {
+    bool currentState = digitalRead(REED_SWITCH); // Read reed switch state
+
+    // Check if magnet is detected (LOW state) and it was previously HIGH
+    if (currentState == LOW && lastState == LOW) {
+        bulbState = !bulbState; // Toggle bulb state
+        digitalWrite(RELAY, bulbState ? LOW : HIGH); // Turn relay ON/OFF
+        delay(1000); // Debounce delay to prevent multiple triggers
+    }
+
+    lastState = currentState; // Update last state
+}
