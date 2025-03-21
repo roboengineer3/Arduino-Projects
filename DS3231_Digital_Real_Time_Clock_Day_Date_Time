@@ -1,0 +1,43 @@
+#include <DS3231.h>
+#include <LiquidCrystal.h> // includes the LiquidCrystal Library 
+
+DS3231 rtc(SDA, SCL);
+LiquidCrystal lcd(1, 2, 4, 5, 6, 7); // (RS, Enable, D4, D5, D6, D7)
+
+void setup() { 
+  rtc.begin(); 
+  lcd.begin(16, 2);
+}
+
+void loop() { 
+  static unsigned long lastChange = 0;
+  static bool showDay = false;
+  
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - lastChange >= 10000) { // Every 10 seconds, toggle to show the day
+    showDay = true;
+    lastChange = currentMillis;
+  }
+
+  lcd.clear(); 
+
+  if (showDay) { 
+    lcd.setCursor(0, 0);
+    lcd.print("Day: ");
+    lcd.print(rtc.getDOWStr()); // Get Day of the Week
+    
+    delay(2000); // Show day for 2 seconds
+    showDay = false; 
+  } else { 
+    lcd.setCursor(0, 0);
+    lcd.print("Time: ");
+    lcd.print(rtc.getTimeStr());
+
+    lcd.setCursor(0, 1);
+    lcd.print("Date: ");
+    lcd.print(rtc.getDateStr());
+    
+    delay(1000); 
+  }
+}
