@@ -1,0 +1,36 @@
+#define FLOW_SENSOR_PIN D5
+
+volatile int flowPulseCount = 0;
+float flowRate;
+unsigned long lastTime;
+
+void IRAM_ATTR pulseCounter() {
+  flowPulseCount++;
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(FLOW_SENSOR_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(FLOW_SENSOR_PIN), pulseCounter, FALLING);
+
+  lastTime = millis();
+}
+
+void loop() {
+  unsigned long currentTime = millis();
+
+  if (currentTime - lastTime >= 1000) {  // Every 1 second
+    detachInterrupt(digitalPinToInterrupt(FLOW_SENSOR_PIN));
+
+    // YF-S201: 450 pulses per liter
+    flowRate = (flowPulseCount / 7.5); // L/min
+    Serial.print("Flow rate: ");
+    Serial.print(flowRate);
+    Serial.println(" L/min");
+
+    flowPulseCount = 0;
+    lastTime = currentTime;
+
+    attachInterrupt(digitalPinToInterrupt(FLOW_SENSOR_PIN), pulseCounter, FALLING);
+  }
+}
